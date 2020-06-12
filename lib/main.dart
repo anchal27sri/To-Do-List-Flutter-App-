@@ -28,15 +28,6 @@ class MyHomePage extends StatefulWidget {
 int currentIndex;
 int l;
 bool flag = true;
-List<String> choices = <String>['Blue', 'Red', 'Yellow', 'Green', 'Dark'];
-
-List<Color> colorChoices = <Color>[
-  Colors.blue,
-  Colors.red,
-  Colors.yellow,
-  Colors.green,
-  Colors.grey[600]
-];
 
 class _MyHomePageState extends State<MyHomePage> {
   Random random = new Random();
