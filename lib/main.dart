@@ -215,6 +215,9 @@ class _MyHomePageState extends State<MyHomePage> {
             if (l == listsnapshot.data.length) {
               return Scaffold(
                 key: _scaffoldKey,
+                backgroundColor: (colorList[currentIndex] == Colors.grey[600])
+                    ? Colors.grey[500]
+                    : null,
                 appBar: AppBar(
                   backgroundColor: colorList[currentIndex],
                   title: currentIndex == 0
@@ -227,6 +230,14 @@ class _MyHomePageState extends State<MyHomePage> {
                     },
                   ),
                   actions: <Widget>[
+                    IconButton(
+                      onPressed: () async {
+                        await DBProvider.db
+                            .deleteAll(listsnapshot.data[currentIndex].name);
+                        setState(() {});
+                      },
+                      icon: Icon(Icons.clear_all),
+                    ),
                     PopupMenuButton<String>(
                       onSelected: (choice) {
                         if (choice == 'Blue') {
@@ -356,16 +367,16 @@ class _MyHomePageState extends State<MyHomePage> {
                 floatingActionButtonLocation: currentIndex == 0
                     ? null
                     : FloatingActionButtonLocation.endFloat,
-                persistentFooterButtons: <Widget>[
-                  MaterialButton(
-                    child: Text('Clear All'),
-                    onPressed: () async {
-                      await DBProvider.db
-                          .deleteAll(listsnapshot.data[currentIndex].name);
-                      setState(() {});
-                    },
-                  )
-                ],
+                // persistentFooterButtons: <Widget>[
+                //   MaterialButton(
+                //     child: Text('Clear All'),
+                //     onPressed: () async {
+                // await DBProvider.db
+                //     .deleteAll(listsnapshot.data[currentIndex].name);
+                // setState(() {});
+                //     },
+                //   )
+                // ],
               );
             } else {
               return Center(child: CircularProgressIndicator());
