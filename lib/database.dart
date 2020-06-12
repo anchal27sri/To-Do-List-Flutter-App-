@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'Item.dart';
@@ -58,7 +57,7 @@ class DBProvider {
     final List<Map<String, dynamic>> maps = await db
         .rawQuery("SELECT name FROM sqlite_master WHERE type = 'table'");
     return List.generate(maps.length, (i) {
-      return Todolist(name: maps[i]['name'], color: Colors.blue);
+      return Todolist(name: maps[i]['name']);
     });
   }
 

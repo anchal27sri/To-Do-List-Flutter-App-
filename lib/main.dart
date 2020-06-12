@@ -29,7 +29,14 @@ int currentIndex;
 int l;
 bool flag = true;
 List<String> choices = <String>['Blue', 'Red', 'Yellow', 'Green', 'Dark'];
-List<Color> colorList = List<Color>();
+
+List<Color> colorChoices = <Color>[
+  Colors.blue,
+  Colors.red,
+  Colors.yellow,
+  Colors.green,
+  Colors.grey[600]
+];
 
 class _MyHomePageState extends State<MyHomePage> {
   Random random = new Random();
@@ -39,8 +46,6 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     currentIndex = 1;
     flag = true;
-    colorList.add(Colors.blue);
-    colorList.add(Colors.blue);
   }
 
   Future<Item> createAlertDialogForEntering(context) {
@@ -195,8 +200,6 @@ class _MyHomePageState extends State<MyHomePage> {
         });
   }
 
-  void choiceAction(String choice, List<Todolist> list) {}
-
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   Todolist currentList = Todolist(name: "SampleList");
   int ll = 0;
@@ -215,11 +218,7 @@ class _MyHomePageState extends State<MyHomePage> {
             if (l == listsnapshot.data.length) {
               return Scaffold(
                 key: _scaffoldKey,
-                backgroundColor: (colorList[currentIndex] == Colors.grey[600])
-                    ? Colors.grey[500]
-                    : null,
                 appBar: AppBar(
-                  backgroundColor: colorList[currentIndex],
                   title: currentIndex == 0
                       ? Text('No List')
                       : Text(listsnapshot.data[currentIndex].name),
@@ -238,39 +237,6 @@ class _MyHomePageState extends State<MyHomePage> {
                       },
                       icon: Icon(Icons.clear_all),
                     ),
-                    PopupMenuButton<String>(
-                      onSelected: (choice) {
-                        if (choice == 'Blue') {
-                          setState(() {
-                            colorList[currentIndex] = Colors.blue;
-                          });
-                        } else if (choice == 'Red') {
-                          setState(() {
-                            colorList[currentIndex] = Colors.red;
-                          });
-                        } else if (choice == 'Yellow') {
-                          setState(() {
-                            colorList[currentIndex] = Colors.amber;
-                          });
-                        } else if (choice == 'Green') {
-                          setState(() {
-                            colorList[currentIndex] = Colors.green;
-                          });
-                        } else if (choice == 'Dark') {
-                          setState(() {
-                            colorList[currentIndex] = Colors.grey[600];
-                          });
-                        }
-                      },
-                      itemBuilder: (BuildContext context) {
-                        return choices.map((String choice) {
-                          return PopupMenuItem<String>(
-                            value: choice,
-                            child: Text(choice),
-                          );
-                        }).toList();
-                      },
-                    )
                   ],
                 ),
                 drawer: Drawer(
@@ -291,6 +257,17 @@ class _MyHomePageState extends State<MyHomePage> {
                                   return Dismissible(
                                       key: UniqueKey(),
                                       onDismissed: (direction) async {
+                                        Scaffold.of(context)
+                                            .showSnackBar(SnackBar(
+                                          content: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: <Widget>[
+                                              Text("$item dismissed"),
+                                              Text("undo"),
+                                            ],
+                                          ),
+                                        ));
                                         await DBProvider.db.deleteItem(
                                             listsnapshot
                                                 .data[currentIndex].name,
@@ -352,7 +329,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     ? null
                     : FloatingActionButton(
                         child: Icon(Icons.add),
-                        backgroundColor: colorList[currentIndex],
                         onPressed: () {
                           createAlertDialogForEntering(context)
                               .then((value) async {
@@ -367,16 +343,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 floatingActionButtonLocation: currentIndex == 0
                     ? null
                     : FloatingActionButtonLocation.endFloat,
-                // persistentFooterButtons: <Widget>[
-                //   MaterialButton(
-                //     child: Text('Clear All'),
-                //     onPressed: () async {
-                // await DBProvider.db
-                //     .deleteAll(listsnapshot.data[currentIndex].name);
-                // setState(() {});
-                //     },
-                //   )
-                // ],
               );
             } else {
               return Center(child: CircularProgressIndicator());

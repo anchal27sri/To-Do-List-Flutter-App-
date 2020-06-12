@@ -79,14 +79,16 @@ Widget viewMenu(context, List<Todolist> lists, Function setState) {
     Todolist job = lists[index];
     return Card(
       child: ListTile(
-        leading: Icon(Icons.view_list),
+        leading: Icon(
+          Icons.view_list,
+        ),
         title: Text(job.name),
         trailing: IconButton(
-          icon: Icon(Icons.delete),
+          icon: Icon(
+            Icons.delete,
+          ),
           onPressed: () async {
             await DBProvider.db.deleteList(lists[index].name);
-            print(colorList.length);
-            colorList.removeAt(index);
             setState(() {
               if (currentIndex == index) {
                 if (lists.length == 2)
@@ -111,7 +113,7 @@ Widget viewMenu(context, List<Todolist> lists, Function setState) {
         decoration: BoxDecoration(
             color: Colors.blue,
             gradient:
-                RadialGradient(radius: 1, colors: [Colors.white, colorList[currentIndex]])),
+                RadialGradient(radius: 1, colors: [Colors.white, Colors.blue])),
         child: Center(
           child: Text('List of Your Lists'),
         ),
@@ -131,7 +133,6 @@ Widget viewMenu(context, List<Todolist> lists, Function setState) {
           await DBProvider.db.createList(value.name);
           currentIndex = lists.length;
           l++;
-          colorList.add(Colors.blue);
           setState(() {});
         }
       });
