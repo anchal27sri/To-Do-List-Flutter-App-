@@ -14,6 +14,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: MyHomePage(),
     );
   }
@@ -27,6 +28,8 @@ class MyHomePage extends StatefulWidget {
 int currentIndex;
 int l;
 bool flag = true;
+List<String> choices = <String>['Blue', 'Red', 'Yellow', 'Green', 'Dark'];
+List<Color> colorList = List<Color>();
 
 class _MyHomePageState extends State<MyHomePage> {
   Random random = new Random();
@@ -36,6 +39,8 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     currentIndex = 1;
     flag = true;
+    colorList.add(Colors.blue);
+    colorList.add(Colors.blue);
   }
 
   Future<Item> createAlertDialogForEntering(context) {
@@ -190,6 +195,8 @@ class _MyHomePageState extends State<MyHomePage> {
         });
   }
 
+  void choiceAction(String choice, List<Todolist> list) {}
+
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   Todolist currentList = Todolist(name: "SampleList");
   int ll = 0;
@@ -208,7 +215,9 @@ class _MyHomePageState extends State<MyHomePage> {
             if (l == listsnapshot.data.length) {
               return Scaffold(
                 key: _scaffoldKey,
+                // backgroundColor: colorList[currentIndex-1],
                 appBar: AppBar(
+                  backgroundColor: colorList[currentIndex],
                   title: currentIndex == 0
                       ? Text('No List')
                       : Text(listsnapshot.data[currentIndex].name),
@@ -218,6 +227,41 @@ class _MyHomePageState extends State<MyHomePage> {
                       _scaffoldKey.currentState.openDrawer();
                     },
                   ),
+                  actions: <Widget>[
+                    PopupMenuButton<String>(
+                      onSelected: (choice) {
+                        if (choice == 'Blue') {
+                          setState(() {
+                            colorList[currentIndex] = Colors.blue;
+                          });
+                        } else if (choice == 'Red') {
+                          setState(() {
+                            colorList[currentIndex] = Colors.red;
+                          });
+                        } else if (choice == 'Yellow') {
+                          setState(() {
+                            colorList[currentIndex] = Colors.amber;
+                          });
+                        } else if (choice == 'Green') {
+                          setState(() {
+                            colorList[currentIndex] = Colors.green;
+                          });
+                        } else if (choice == 'Dark') {
+                          setState(() {
+                            colorList[currentIndex] = Colors.grey[600];
+                          });
+                        }
+                      },
+                      itemBuilder: (BuildContext context) {
+                        return choices.map((String choice) {
+                          return PopupMenuItem<String>(
+                            value: choice,
+                            child: Text(choice),
+                          );
+                        }).toList();
+                      },
+                    )
+                  ],
                 ),
                 drawer: Drawer(
                   child: viewMenu(context, listsnapshot.data, setState),
@@ -298,6 +342,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ? null
                     : FloatingActionButton(
                         child: Icon(Icons.add),
+                        backgroundColor: colorList[currentIndex],
                         onPressed: () {
                           createAlertDialogForEntering(context)
                               .then((value) async {

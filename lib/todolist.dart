@@ -1,4 +1,7 @@
+import 'package:flutter/material.dart';
+
 class Todolist {
   String name;
-  Todolist({this.name});
+  Color color;
+  Todolist({this.name,this.color});
 }
