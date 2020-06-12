@@ -215,7 +215,6 @@ class _MyHomePageState extends State<MyHomePage> {
             if (l == listsnapshot.data.length) {
               return Scaffold(
                 key: _scaffoldKey,
-                // backgroundColor: colorList[currentIndex-1],
                 appBar: AppBar(
                   backgroundColor: colorList[currentIndex],
                   title: currentIndex == 0

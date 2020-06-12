@@ -38,7 +38,7 @@ Future<Todolist> createAlertDialogForEntering(context, List<Todolist> list) {
                         return 'This field should no be empty';
                       }
                       for (int i = 0; i < list.length; i++)
-                        if (list[i].name == input) {
+                        if (list[i].name.toLowerCase() == input.toLowerCase()) {
                           return 'Already Exists. Try a different name';
                         }
                       return null;

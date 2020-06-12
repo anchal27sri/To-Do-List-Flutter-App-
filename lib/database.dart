@@ -58,7 +58,7 @@ class DBProvider {
     final List<Map<String, dynamic>> maps = await db
         .rawQuery("SELECT name FROM sqlite_master WHERE type = 'table'");
     return List.generate(maps.length, (i) {
-      return Todolist(name: maps[i]['name'],color: Colors.blue);
+      return Todolist(name: maps[i]['name'], color: Colors.blue);
     });
   }
 
