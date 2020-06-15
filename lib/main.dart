@@ -3,7 +3,7 @@ import 'Item.dart';
 import 'todolist.dart';
 import 'database.dart';
 import 'package:flutter/widgets.dart';
-import 'dart:math';
+// import 'dart:math';
 import 'package:dotted_border/dotted_border.dart';
 
 void main() {
@@ -26,18 +26,28 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  Random random = new Random();
+  // Random random = new Random();
   int currentIndex;
+  int listlen;
   int l;
   bool flag = true;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  int ll = 0;
+  // int ll = 0;
+  List<String> choices = ['Blue', 'Red', 'Green', 'Yellow', 'Dark'];
+  Map<String, Color> choiceColorMap = {
+    'Blue': Colors.blue,
+    'Green': Colors.green,
+    'Red': Colors.red,
+    'Yellow': Colors.amber,
+    'Dark': Colors.grey[600]
+  };
 
   @override
   initState() {
     super.initState();
-    currentIndex = 1;
+    currentIndex = -1;
     flag = true;
+
   }
 
   Future<Item> createAlertDialogForEntering(context) {
@@ -91,7 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             onPressed: () {
                               if (_formkey.currentState.validate()) {
                                 Navigator.of(context).pop(Item(
-                                    id: random.nextInt(1000),
+                                    id: 0,
                                     done: 0,
                                     title: titleController.text.toString(),
                                     description:
@@ -275,50 +285,61 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget viewMenu(context, List<Todolist> lists, Function setState) {
-    List<Widget> list = List<Widget>.generate(lists.length, (index) {
-      Todolist job = lists[index];
-      return Card(
-        child: ListTile(
-          leading: Icon(
-            Icons.view_list,
-          ),
-          title: Text(job.name),
-          trailing: IconButton(
-            icon: Icon(
-              Icons.delete,
+    // print('drawer function called');
+    List<Widget> list = List<Widget>();
+    if (lists.length>0) {
+      List<Widget> temp = List<Widget>.generate(lists.length, (index) {
+        Todolist job = lists[index];
+        return Card(
+          child: ListTile(
+            leading: Icon(
+              Icons.view_list,
             ),
-            onPressed: () async {
-              await DBProvider.db.deleteList(lists[index].name);
-              setState(() {
-                if (currentIndex == index) {
-                  if (lists.length == 2)
-                    currentIndex = 0;
-                  else if (index == lists.length - 1) currentIndex--;
-                } else if (currentIndex == lists.length - 1) currentIndex--;
-                l--;
-              });
-            },
+            title: Text(job.name),
+            trailing: IconButton(
+              icon: Icon(
+                Icons.delete,
+              ),
+              onPressed: () async {
+                // print("going to delete: $index , ${lists[index].name}");
+                await DBProvider.db.deleteList(lists[index].name,lists[index].id);
+                // print('deleted');
+                // print('currentIndex: $currentIndex , index: $index');
+                setState(() {
+                  if (currentIndex == index) {
+                    if (lists.length == 1)
+                      currentIndex = -1;
+                    else if (index == lists.length - 1) currentIndex--;
+                  } else if (currentIndex == lists.length - 1) currentIndex--;
+                  l--;
+                  // print("just deleted... len: ${lists.length}");
+                });
+              },
+            ),
+            onTap: () => setState(() {
+              currentIndex = index;
+              Navigator.pop(context);
+            }),
           ),
-          onTap: () => setState(() {
-            currentIndex = index;
-            Navigator.pop(context);
-          }),
-        ),
-      );
-    });
-
+        );
+      });
+      list.addAll(temp);
+    }
+    // print('list generated');
     list.insert(
         0,
         DrawerHeader(
           decoration: BoxDecoration(
               color: Colors.blue,
-              gradient: RadialGradient(
-                  radius: 1, colors: [Colors.white, Colors.blue])),
+              gradient: RadialGradient(radius: 1, colors: [
+                Colors.white,
+                lists.length == 0 ? Colors.blue :currentIndex == -1? Colors.blue:choiceColorMap[lists[currentIndex].color]
+              ])),
           child: Center(
             child: Text('List of Your Lists'),
           ),
         ));
-
+    // print('inserted drawer header');
     GestureDetector gd = GestureDetector(
       child: Center(
         child: Icon(
@@ -331,9 +352,12 @@ class _MyHomePageState extends State<MyHomePage> {
         await createAlertDialogForEnteringList(context, lists)
             .then((value) async {
           if (value != null) {
-            await DBProvider.db.createList(value.name);
-            currentIndex = lists.length;
+            await DBProvider.db.createList(value.name,lists.length + 1);
             l++;
+            if(currentIndex==-1)
+              currentIndex = 0;
+            else
+              currentIndex = lists.length;
             setState(() {});
           }
         });
@@ -348,14 +372,11 @@ class _MyHomePageState extends State<MyHomePage> {
         child: gd,
       ),
     ));
-
-    list.removeAt(1);
+    // print('added padding');
     return ListView(
       children: list,
     );
   }
-
-  
 
   @override
   Widget build(BuildContext context) {
@@ -366,36 +387,66 @@ class _MyHomePageState extends State<MyHomePage> {
           if (listsnapshot.hasData) {
             if (flag) {
               l = listsnapshot.data.length;
+              if(l==0)
+                currentIndex = -1;
+              else
+                currentIndex = 0;
               flag = false;
             }
-            if (l == listsnapshot.data.length) {
+            // print("just build: ${listsnapshot.data.length} , currentIndex: $currentIndex");
+            if (l == listsnapshot.data.length && currentIndex < listsnapshot.data.length) {
               return Scaffold(
                 key: _scaffoldKey,
                 appBar: AppBar(
-                  title: currentIndex == 0
+                  title: currentIndex == -1
                       ? Text('No List')
                       : Text(listsnapshot.data[currentIndex].name),
+                  backgroundColor: currentIndex == -1
+                      ? Colors.blue
+                      : choiceColorMap[listsnapshot.data[currentIndex].color],
                   leading: IconButton(
                     icon: Icon(Icons.menu),
                     onPressed: () {
                       _scaffoldKey.currentState.openDrawer();
                     },
                   ),
-                  actions: <Widget>[
-                    IconButton(
-                      onPressed: () async {
-                        await DBProvider.db
-                            .deleteAll(listsnapshot.data[currentIndex].name);
-                        setState(() {});
-                      },
-                      icon: Icon(Icons.clear_all),
-                    ),
-                  ],
+                  actions: currentIndex == -1
+                      ? null
+                      : <Widget>[
+                          IconButton(
+                            onPressed: () async {
+                              await DBProvider.db.deleteAll(
+                                  listsnapshot.data[currentIndex].name);
+                              setState(() {});
+                            },
+                            icon: Icon(Icons.clear_all),
+                          ),
+                          PopupMenuButton<String>(
+                            onSelected: (choice) async {
+                              listsnapshot.data[currentIndex].color = choice;
+                              await DBProvider.db
+                                  .updateList(listsnapshot.data[currentIndex]);
+                              setState(() {});
+                            },
+                            itemBuilder: (BuildContext context) {
+                              return choices.map((String choice) {
+                                return PopupMenuItem<String>(
+                                  height: 40,
+                                  value: choice,
+                                  child: Icon(
+                                    Icons.color_lens,
+                                    color: choiceColorMap[choice],
+                                  ),
+                                );
+                              }).toList();
+                            },
+                          )
+                        ],
                 ),
                 drawer: Drawer(
                   child: viewMenu(context, listsnapshot.data, setState),
                 ),
-                body: currentIndex == 0
+                body: currentIndex == -1
                     ? Center(child: Text('EMPTY'))
                     : FutureBuilder<List<Item>>(
                         future: DBProvider.db
@@ -403,6 +454,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         builder: (BuildContext context,
                             AsyncSnapshot<List<Item>> snapshot) {
                           if (snapshot.hasData) {
+                            listlen = snapshot.data.length;
                             return ListView.builder(
                                 itemCount: snapshot.data.length,
                                 itemBuilder: (context, int index) {
@@ -425,7 +477,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                             listsnapshot
                                                 .data[currentIndex].name,
                                             item.id);
-                                        ll--;
+                                        // ll--;
                                         snapshot.data.removeAt(index);
                                         setState(() {});
                                       },
@@ -436,7 +488,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                             value: (item.done == 1),
                                             onChanged: (value) => setState(() {
                                               item.done = (value) ? 1 : 0;
-                                              DBProvider.db.update(
+                                              DBProvider.db.updateItem(
                                                   listsnapshot
                                                       .data[currentIndex].name,
                                                   item);
@@ -461,11 +513,13 @@ class _MyHomePageState extends State<MyHomePage> {
                                                   item.title = value.title;
                                                   item.description =
                                                       value.description;
-                                                  await DBProvider.db.update(
-                                                      listsnapshot
-                                                          .data[currentIndex]
-                                                          .name,
-                                                      item);
+                                                  await DBProvider.db
+                                                      .updateItem(
+                                                          listsnapshot
+                                                              .data[
+                                                                  currentIndex]
+                                                              .name,
+                                                          item);
                                                   setState(() {});
                                                 }
                                               });
@@ -478,22 +532,25 @@ class _MyHomePageState extends State<MyHomePage> {
                             return Center(child: CircularProgressIndicator());
                           }
                         }),
-                floatingActionButton: currentIndex == 0
+                floatingActionButton: currentIndex == -1
                     ? null
                     : FloatingActionButton(
                         child: Icon(Icons.add),
+                        backgroundColor: choiceColorMap[
+                            listsnapshot.data[currentIndex].color],
                         onPressed: () {
                           createAlertDialogForEntering(context)
                               .then((value) async {
                             if (value != null) {
+                              value.id = listlen;
                               await DBProvider.db.newItem(
                                   listsnapshot.data[currentIndex].name, value);
-                              ll++;
+                              // ll++;
                               setState(() {});
                             }
                           });
                         }),
-                floatingActionButtonLocation: currentIndex == 0
+                floatingActionButtonLocation: currentIndex == -1
                     ? null
                     : FloatingActionButtonLocation.endFloat,
               );
