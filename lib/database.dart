@@ -4,12 +4,10 @@ import 'package:sqflite/sqflite.dart';
 import 'Item.dart';
 import 'todolist.dart';
 import 'package:path_provider/path_provider.dart';
-// import 'dart:math';
 
 class DBProvider {
   DBProvider._();
   static final DBProvider db = DBProvider._();
-  // Random random = new Random();
 
   Database _database;
 

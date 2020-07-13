@@ -3,7 +3,6 @@ import 'Item.dart';
 import 'todolist.dart';
 import 'database.dart';
 import 'package:flutter/widgets.dart';
-// import 'dart:math';
 import 'package:dotted_border/dotted_border.dart';
 
 void main() {
@@ -26,13 +25,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  // Random random = new Random();
   int currentIndex;
   int listlen;
   int l;
   bool flag = true;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  // int ll = 0;
   List<String> choices = ['Blue', 'Red', 'Green', 'Yellow', 'Dark'];
   Map<String, Color> choiceColorMap = {
     'Blue': Colors.blue,
@@ -47,7 +44,6 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     currentIndex = -1;
     flag = true;
-
   }
 
   Future<Item> createAlertDialogForEntering(context) {
@@ -285,26 +281,30 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget viewMenu(context, List<Todolist> lists, Function setState) {
-    // print('drawer function called');
     List<Widget> list = List<Widget>();
-    if (lists.length>0) {
+    
+    if (lists.length > 0) {
       List<Widget> temp = List<Widget>.generate(lists.length, (index) {
         Todolist job = lists[index];
         return Card(
           child: ListTile(
             leading: Icon(
               Icons.view_list,
+              color: currentIndex == -1
+                      ? Colors.blue
+                      : choiceColorMap[lists[index].color],
             ),
             title: Text(job.name),
             trailing: IconButton(
               icon: Icon(
                 Icons.delete,
+                color: currentIndex == -1
+                      ? Colors.blue
+                      : choiceColorMap[lists[index].color],
               ),
               onPressed: () async {
-                // print("going to delete: $index , ${lists[index].name}");
-                await DBProvider.db.deleteList(lists[index].name,lists[index].id);
-                // print('deleted');
-                // print('currentIndex: $currentIndex , index: $index');
+                await DBProvider.db
+                    .deleteList(lists[index].name, lists[index].id);
                 setState(() {
                   if (currentIndex == index) {
                     if (lists.length == 1)
@@ -312,7 +312,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     else if (index == lists.length - 1) currentIndex--;
                   } else if (currentIndex == lists.length - 1) currentIndex--;
                   l--;
-                  // print("just deleted... len: ${lists.length}");
                 });
               },
             ),
@@ -325,7 +324,6 @@ class _MyHomePageState extends State<MyHomePage> {
       });
       list.addAll(temp);
     }
-    // print('list generated');
     list.insert(
         0,
         DrawerHeader(
@@ -333,13 +331,16 @@ class _MyHomePageState extends State<MyHomePage> {
               color: Colors.blue,
               gradient: RadialGradient(radius: 1, colors: [
                 Colors.white,
-                lists.length == 0 ? Colors.blue :currentIndex == -1? Colors.blue:choiceColorMap[lists[currentIndex].color]
+                lists.length == 0
+                    ? Colors.blue
+                    : currentIndex == -1
+                        ? Colors.blue
+                        : choiceColorMap[lists[currentIndex].color]
               ])),
           child: Center(
-            child: Text('List of Your Lists'),
+            child: Text('Your Lists',style: TextStyle(fontSize: 40,fontWeight: FontWeight.bold,color: Colors.black),),
           ),
         ));
-    // print('inserted drawer header');
     GestureDetector gd = GestureDetector(
       child: Center(
         child: Icon(
@@ -352,9 +353,9 @@ class _MyHomePageState extends State<MyHomePage> {
         await createAlertDialogForEnteringList(context, lists)
             .then((value) async {
           if (value != null) {
-            await DBProvider.db.createList(value.name,lists.length + 1);
+            await DBProvider.db.createList(value.name, lists.length + 1);
             l++;
-            if(currentIndex==-1)
+            if (currentIndex == -1)
               currentIndex = 0;
             else
               currentIndex = lists.length;
@@ -372,7 +373,6 @@ class _MyHomePageState extends State<MyHomePage> {
         child: gd,
       ),
     ));
-    // print('added padding');
     return ListView(
       children: list,
     );
@@ -387,14 +387,14 @@ class _MyHomePageState extends State<MyHomePage> {
           if (listsnapshot.hasData) {
             if (flag) {
               l = listsnapshot.data.length;
-              if(l==0)
+              if (l == 0)
                 currentIndex = -1;
               else
                 currentIndex = 0;
               flag = false;
             }
-            // print("just build: ${listsnapshot.data.length} , currentIndex: $currentIndex");
-            if (l == listsnapshot.data.length && currentIndex < listsnapshot.data.length) {
+            if (l == listsnapshot.data.length &&
+                currentIndex < listsnapshot.data.length) {
               return Scaffold(
                 key: _scaffoldKey,
                 appBar: AppBar(
@@ -433,9 +433,14 @@ class _MyHomePageState extends State<MyHomePage> {
                                 return PopupMenuItem<String>(
                                   height: 40,
                                   value: choice,
-                                  child: Icon(
-                                    Icons.color_lens,
-                                    color: choiceColorMap[choice],
+                                  child: Row(
+                                    children: <Widget>[
+                                      Icon(
+                                        Icons.color_lens,
+                                        color: choiceColorMap[choice],
+                                      ),
+                                      Text(choice),
+                                    ],
                                   ),
                                 );
                               }).toList();
