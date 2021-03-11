@@ -1,6 +1,7 @@
 # To-Do List
 
 This is an android development project built in flutter. I have tried to buil a to-do list. This list can be used by anyone who want to keep track of anything. 
+To download this app, follow this link: [ToDoListApp](https://github.com/anchal27sri/To-Do-List-Flutter-App-/releases/tag/v1.0.0.0)
 
 ## Demo
 
